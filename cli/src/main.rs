@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand};
 
+use tinstar::commands;
+
 #[derive(Parser)]
 #[command(name = "tinstar", version, about = "Git law enforcement for Claude Code")]
 struct Cli {
@@ -32,18 +34,20 @@ enum Commands {
 
 fn main() {
     let cli = Cli::parse();
+    let project_dir = std::env::current_dir().unwrap_or_else(|e| {
+        eprintln!("tinstar: cannot determine current directory: {e}");
+        std::process::exit(1);
+    });
+
     match cli.command {
         Commands::Check { command, json } => {
-            eprintln!("check not yet implemented: {command}");
-            std::process::exit(1);
+            commands::check::run(&command, json, &project_dir);
         }
         Commands::CheckState { json } => {
-            eprintln!("check-state not yet implemented");
-            std::process::exit(1);
+            commands::check_state::run(json, &project_dir);
         }
         Commands::Status { json } => {
-            println!("tinstar v{}", env!("CARGO_PKG_VERSION"));
-            println!("No rules implemented yet.");
+            commands::status::run(json, &project_dir);
         }
     }
 }

@@ -1,8 +1,8 @@
 use std::path::Path;
 
+use super::RuleResult;
 use crate::config::Severity;
 use crate::git;
-use super::RuleResult;
 
 /// Checks whether the current branch has fallen behind its upstream.
 pub fn check(dir: &Path, severity: Severity, threshold: usize) -> Option<RuleResult> {

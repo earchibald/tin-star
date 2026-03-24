@@ -1,10 +1,10 @@
+pub mod branch_divergence;
+pub mod commit_message;
+pub mod commit_to_main;
+mod destructive_ops;
 mod force_push;
 mod no_verify;
-mod destructive_ops;
-pub mod commit_to_main;
-pub mod commit_message;
 pub mod secrets;
-pub mod branch_divergence;
 pub mod stale_branches;
 
 use std::path::Path;
@@ -34,14 +34,8 @@ pub trait Rule {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RuleResult {
     Allow,
-    Warn {
-        rule: String,
-        reason: String,
-    },
-    Block {
-        rule: String,
-        reason: String,
-    },
+    Warn { rule: String, reason: String },
+    Block { rule: String, reason: String },
 }
 
 // ---------------------------------------------------------------------------

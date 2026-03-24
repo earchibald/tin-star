@@ -21,7 +21,13 @@ pub fn run(message: &str, json: bool) {
     let (valid, reason) = if trimmed.is_empty() {
         (false, "commit message is empty".to_string())
     } else if trimmed.len() < 3 {
-        (false, format!("commit message too short ({} chars, minimum 3)", trimmed.len()))
+        (
+            false,
+            format!(
+                "commit message too short ({} chars, minimum 3)",
+                trimmed.len()
+            ),
+        )
     } else {
         (true, String::new())
     };

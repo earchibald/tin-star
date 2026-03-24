@@ -9,7 +9,12 @@ fn tinstar(args: &[&str]) -> std::process::Output {
 
 #[test]
 fn test_check_blocks_force_push() {
-    let out = tinstar(&["check", "--command", "git push --force origin main", "--json"]);
+    let out = tinstar(&[
+        "check",
+        "--command",
+        "git push --force origin main",
+        "--json",
+    ]);
     assert_eq!(out.status.code(), Some(2));
     let stdout = String::from_utf8_lossy(&out.stdout);
     assert!(stdout.contains("force-push"));
@@ -23,7 +28,12 @@ fn test_check_allows_normal_push() {
 
 #[test]
 fn test_check_blocks_no_verify() {
-    let out = tinstar(&["check", "--command", "git commit --no-verify -m 'test'", "--json"]);
+    let out = tinstar(&[
+        "check",
+        "--command",
+        "git commit --no-verify -m 'test'",
+        "--json",
+    ]);
     assert_eq!(out.status.code(), Some(2));
     let stdout = String::from_utf8_lossy(&out.stdout);
     assert!(stdout.contains("no-verify"));

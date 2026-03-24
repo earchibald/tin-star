@@ -44,9 +44,7 @@ pub fn run(json: bool, project_dir: &Path) {
             if config.branches.is_protected(&branch) {
                 issues.push(StateIssue {
                     severity: "block".into(),
-                    message: format!(
-                        "Dirty working tree on protected branch '{branch}'"
-                    ),
+                    message: format!("Dirty working tree on protected branch '{branch}'"),
                 });
             }
         }

@@ -1,14 +1,34 @@
-use tempfile::TempDir;
 use std::process::Command;
+use tempfile::TempDir;
 
 #[test]
 fn test_sweep_finds_branches() {
     let dir = TempDir::new().unwrap();
-    Command::new("git").args(["init"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["config", "user.email", "t@t.com"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["config", "user.name", "T"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["commit", "--allow-empty", "-m", "init"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["branch", "stale-branch"]).current_dir(dir.path()).output().unwrap();
+    Command::new("git")
+        .args(["init"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["config", "user.email", "t@t.com"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["config", "user.name", "T"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "--allow-empty", "-m", "init"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["branch", "stale-branch"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
     let branches = tinstar::git::list_branches(dir.path()).unwrap();
     assert!(branches.len() >= 2);
 }

@@ -23,10 +23,7 @@ pub type GitResult<T> = Result<T, GitError>;
 
 /// Run a git command in the given directory and return stdout as a trimmed string.
 fn run_git(dir: &Path, args: &[&str]) -> GitResult<String> {
-    let output = Command::new("git")
-        .args(args)
-        .current_dir(dir)
-        .output()?;
+    let output = Command::new("git").args(args).current_dir(dir).output()?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -92,7 +89,10 @@ pub fn list_branches(dir: &Path) -> GitResult<Vec<BranchInfo>> {
         }
         let parts: Vec<&str> = line.splitn(3, '\t').collect();
         let name = parts.first().unwrap_or(&"").to_string();
-        let date = parts.get(1).map(|s| s.to_string()).filter(|s| !s.is_empty());
+        let date = parts
+            .get(1)
+            .map(|s| s.to_string())
+            .filter(|s| !s.is_empty());
         let upstream = parts.get(2).map(|s| !s.is_empty()).unwrap_or(false);
 
         if !name.is_empty() {

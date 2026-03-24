@@ -1,9 +1,18 @@
 #[test]
 fn test_default_config_has_all_rules() {
     let config = tinstar::config::Config::default();
-    assert_eq!(config.rule_severity("force-push"), tinstar::config::Severity::Block);
-    assert_eq!(config.rule_severity("commit-to-main"), tinstar::config::Severity::Warn);
-    assert_eq!(config.rule_severity("nonexistent"), tinstar::config::Severity::Off);
+    assert_eq!(
+        config.rule_severity("force-push"),
+        tinstar::config::Severity::Block
+    );
+    assert_eq!(
+        config.rule_severity("commit-to-main"),
+        tinstar::config::Severity::Warn
+    );
+    assert_eq!(
+        config.rule_severity("nonexistent"),
+        tinstar::config::Severity::Off
+    );
 }
 
 #[test]
@@ -15,10 +24,19 @@ force-push = "warn"
 commit-to-main = "block"
 "#;
     let config = tinstar::config::Config::from_toml_str(toml).unwrap();
-    assert_eq!(config.rule_severity("force-push"), tinstar::config::Severity::Warn);
-    assert_eq!(config.rule_severity("commit-to-main"), tinstar::config::Severity::Block);
+    assert_eq!(
+        config.rule_severity("force-push"),
+        tinstar::config::Severity::Warn
+    );
+    assert_eq!(
+        config.rule_severity("commit-to-main"),
+        tinstar::config::Severity::Block
+    );
     // Unmentioned rules keep defaults
-    assert_eq!(config.rule_severity("no-verify"), tinstar::config::Severity::Block);
+    assert_eq!(
+        config.rule_severity("no-verify"),
+        tinstar::config::Severity::Block
+    );
 }
 
 #[test]
@@ -30,7 +48,10 @@ future-rule = "block"
 "#;
     let config = tinstar::config::Config::from_toml_str(toml).unwrap();
     // Unknown rules don't crash, return Off
-    assert_eq!(config.rule_severity("future-rule"), tinstar::config::Severity::Off);
+    assert_eq!(
+        config.rule_severity("future-rule"),
+        tinstar::config::Severity::Off
+    );
 }
 
 #[test]

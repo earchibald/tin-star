@@ -172,21 +172,11 @@ impl BranchesConfig {
 // SecretsConfig
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct SecretsConfig {
     pub ignore_files: Vec<String>,
     pub ignore_patterns: Vec<String>,
     pub extra_patterns: Vec<String>,
-}
-
-impl Default for SecretsConfig {
-    fn default() -> Self {
-        Self {
-            ignore_files: Vec::new(),
-            ignore_patterns: Vec::new(),
-            extra_patterns: Vec::new(),
-        }
-    }
 }
 
 impl SecretsConfig {

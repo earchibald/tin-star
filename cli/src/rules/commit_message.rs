@@ -16,18 +16,12 @@ impl Rule for CommitMessage {
         }
 
         // If no -m flag, allow (user will get an editor)
-        let msg = match extract_commit_message(command) {
-            Some(m) => m,
-            None => return None,
-        };
+        let msg = extract_commit_message(command)?;
 
         let trimmed = msg.trim();
 
         if trimmed.is_empty() {
-            return Some((
-                "commit-message".into(),
-                "Commit message is empty.".into(),
-            ));
+            return Some(("commit-message".into(), "Commit message is empty.".into()));
         }
 
         if trimmed.len() < 3 {

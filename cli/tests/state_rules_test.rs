@@ -1,5 +1,5 @@
-use tinstar::rules::commit_to_main::CommitToMain;
 use tinstar::rules::commit_message::CommitMessage;
+use tinstar::rules::commit_to_main::CommitToMain;
 use tinstar::rules::Rule;
 
 #[test]
@@ -55,17 +55,33 @@ fn test_commit_no_message_flag_allowed() {
 // evaluate_all_rules integration test
 // ---------------------------------------------------------------------------
 
-use tinstar::config::Config;
-use tinstar::rules::{evaluate_all_rules, RuleResult};
 use std::process::Command;
 use tempfile::TempDir;
+use tinstar::config::Config;
+use tinstar::rules::{evaluate_all_rules, RuleResult};
 
 fn init_repo() -> TempDir {
     let dir = TempDir::new().unwrap();
-    Command::new("git").args(["init"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["config", "user.email", "t@t.com"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["config", "user.name", "T"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["commit", "--allow-empty", "-m", "init"]).current_dir(dir.path()).output().unwrap();
+    Command::new("git")
+        .args(["init"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["config", "user.email", "t@t.com"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["config", "user.name", "T"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "--allow-empty", "-m", "init"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
     dir
 }
 
@@ -74,10 +90,13 @@ fn test_evaluate_all_rules_composes_command_and_state_rules() {
     let dir = init_repo();
     let config = Config::default();
     let results = evaluate_all_rules("git commit --no-verify -m 'test'", &config, dir.path());
-    let rule_names: Vec<&str> = results.iter().filter_map(|r| match r {
-        RuleResult::Block { rule, .. } | RuleResult::Warn { rule, .. } => Some(rule.as_str()),
-        _ => None,
-    }).collect();
+    let rule_names: Vec<&str> = results
+        .iter()
+        .filter_map(|r| match r {
+            RuleResult::Block { rule, .. } | RuleResult::Warn { rule, .. } => Some(rule.as_str()),
+            _ => None,
+        })
+        .collect();
     assert!(rule_names.contains(&"no-verify"));
     assert!(rule_names.contains(&"commit-to-main"));
 }

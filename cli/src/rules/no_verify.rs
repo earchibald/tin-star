@@ -15,7 +15,7 @@ impl Rule for NoVerifyRule {
             return None;
         }
 
-        if args.iter().any(|a| *a == "--no-verify") {
+        if args.contains(&"--no-verify") {
             return Some((
                 "no-verify".into(),
                 "--no-verify skips git hooks. Hooks exist to enforce project standards.".into(),

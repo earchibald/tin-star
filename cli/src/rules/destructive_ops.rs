@@ -19,7 +19,7 @@ impl Rule for DestructiveOpsRule {
         match subcommand {
             // git reset --hard
             "reset" => {
-                if args.iter().any(|a| *a == "--hard") {
+                if args.contains(&"--hard") {
                     return Some((
                         "destructive-ops".into(),
                         "git reset --hard discards uncommitted changes.".into(),
@@ -28,7 +28,7 @@ impl Rule for DestructiveOpsRule {
             }
             // git checkout .
             "checkout" => {
-                if args.iter().any(|a| *a == ".") {
+                if args.contains(&".") {
                     return Some((
                         "destructive-ops".into(),
                         "git checkout . discards all unstaged changes.".into(),
@@ -46,7 +46,7 @@ impl Rule for DestructiveOpsRule {
             }
             // git restore .
             "restore" => {
-                if args.iter().any(|a| *a == ".") {
+                if args.contains(&".") {
                     return Some((
                         "destructive-ops".into(),
                         "git restore . discards all unstaged changes.".into(),

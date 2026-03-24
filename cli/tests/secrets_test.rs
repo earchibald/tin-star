@@ -1,5 +1,5 @@
-use tinstar::rules::secrets::Secrets;
 use tinstar::config::Config;
+use tinstar::rules::secrets::Secrets;
 
 #[test]
 fn test_detects_aws_key() {

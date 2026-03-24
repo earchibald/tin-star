@@ -3,7 +3,11 @@ use clap::{Parser, Subcommand};
 use tinstar::commands;
 
 #[derive(Parser)]
-#[command(name = "tinstar", version, about = "Git law enforcement for Claude Code")]
+#[command(
+    name = "tinstar",
+    version,
+    about = "Git law enforcement for Claude Code"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

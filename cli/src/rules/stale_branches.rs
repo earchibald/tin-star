@@ -2,9 +2,9 @@ use std::path::Path;
 
 use chrono::NaiveDateTime;
 
+use super::RuleResult;
 use crate::config::Severity;
 use crate::git;
-use super::RuleResult;
 
 /// Checks for local branches whose last commit is older than `stale_days`.
 pub fn check(dir: &Path, severity: Severity, stale_days: u32) -> Vec<RuleResult> {

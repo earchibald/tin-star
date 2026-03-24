@@ -140,10 +140,8 @@ pub fn prune_old_leaks(leaks_dir: &Path, max_age_days: u64) -> usize {
             if let Some(ts) = val.get("timestamp").and_then(|v| v.as_str()) {
                 if let Ok(dt) = DateTime::parse_from_rfc3339(ts) {
                     let age_days = (now - dt.with_timezone(&Utc)).num_days();
-                    if age_days > max_age_days as i64 {
-                        if std::fs::remove_file(&path).is_ok() {
-                            pruned += 1;
-                        }
+                    if age_days > max_age_days as i64 && std::fs::remove_file(&path).is_ok() {
+                        pruned += 1;
                     }
                 }
             }

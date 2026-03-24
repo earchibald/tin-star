@@ -51,11 +51,7 @@ impl Secrets {
             let content = &line[1..]; // strip the leading '+'
 
             // Check ignore patterns — if any ignore pattern matches, skip the line
-            if self
-                .ignore_patterns
-                .iter()
-                .any(|ip| content.contains(ip))
-            {
+            if self.ignore_patterns.iter().any(|ip| content.contains(ip)) {
                 continue;
             }
 

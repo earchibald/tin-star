@@ -3,11 +3,26 @@ use tempfile::TempDir;
 
 fn init_repo() -> TempDir {
     let dir = TempDir::new().unwrap();
-    Command::new("git").args(["init"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["config", "user.email", "test@test.com"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["config", "user.name", "Test"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["commit", "--allow-empty", "-m", "init"])
-        .current_dir(dir.path()).output().unwrap();
+    Command::new("git")
+        .args(["init"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["config", "user.email", "test@test.com"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["config", "user.name", "Test"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "--allow-empty", "-m", "init"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
     dir
 }
 
@@ -42,7 +57,11 @@ fn test_staged_diff_empty() {
 fn test_staged_diff_with_content() {
     let dir = init_repo();
     std::fs::write(dir.path().join("secret.txt"), "api_key = 'test123'").unwrap();
-    Command::new("git").args(["add", "secret.txt"]).current_dir(dir.path()).output().unwrap();
+    Command::new("git")
+        .args(["add", "secret.txt"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
     let diff = tinstar::git::staged_diff(dir.path()).unwrap();
     assert!(diff.contains("api_key"));
 }
@@ -83,8 +102,16 @@ fn test_working_diff_with_changes() {
     let dir = init_repo();
     // Create and commit a file first
     std::fs::write(dir.path().join("file.txt"), "original").unwrap();
-    Command::new("git").args(["add", "file.txt"]).current_dir(dir.path()).output().unwrap();
-    Command::new("git").args(["commit", "-m", "add file"]).current_dir(dir.path()).output().unwrap();
+    Command::new("git")
+        .args(["add", "file.txt"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "-m", "add file"])
+        .current_dir(dir.path())
+        .output()
+        .unwrap();
     // Now modify it
     std::fs::write(dir.path().join("file.txt"), "modified").unwrap();
     let diff = tinstar::git::working_diff(dir.path()).unwrap();
@@ -104,5 +131,7 @@ fn test_list_branches() {
     let branches = tinstar::git::list_branches(dir.path()).unwrap();
     assert!(!branches.is_empty());
     // The default branch should be listed
-    assert!(branches.iter().any(|b| b.name == "main" || b.name == "master"));
+    assert!(branches
+        .iter()
+        .any(|b| b.name == "main" || b.name == "master"));
 }

@@ -26,13 +26,17 @@ if [ "$CHECK_EXIT" = "2" ]; then
     if [ -n "$(git status --porcelain 2>/dev/null | head -1)" ]; then
         IS_DIRTY="true"
     fi
+    DIRTY_FLAG=""
+    if [ "$IS_DIRTY" = "true" ]; then
+        DIRTY_FLAG="--dirty"
+    fi
     "$TINSTAR" issue create \
         --rule "$RULE" \
         --command "$COMMAND" \
         --hook "PostToolUse" \
         --project "$TINSTAR_PROJECT" \
         --branch "$BRANCH" \
-        --dirty "$IS_DIRTY" 2>/dev/null || true
+        $DIRTY_FLAG 2>/dev/null || true
 fi
 
 exit 0

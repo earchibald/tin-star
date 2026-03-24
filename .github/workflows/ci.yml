@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Format check
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Test
+        run: cargo test
+
+      - name: Version sync check
+        run: |
+          CARGO_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          PLUGIN_VERSION=$(jq -r '.version' ../.claude-plugin/plugin.json)
+          if [ "$CARGO_VERSION" != "$PLUGIN_VERSION" ]; then
+            echo "::error::Version mismatch: Cargo.toml=$CARGO_VERSION plugin.json=$PLUGIN_VERSION"
+            exit 1
+          fi
+
+      - name: Build smoke test
+        run: cargo build

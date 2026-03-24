@@ -99,6 +99,9 @@ impl Config {
                 if let Some(files) = ignore.files {
                     config.secrets.ignore_files = files;
                 }
+                if let Some(patterns) = ignore.patterns {
+                    config.secrets.ignore_patterns = patterns;
+                }
             }
             if let Some(extra) = s.extra_patterns {
                 config.secrets.extra_patterns = extra;
@@ -172,6 +175,7 @@ impl BranchesConfig {
 #[derive(Debug, Clone)]
 pub struct SecretsConfig {
     pub ignore_files: Vec<String>,
+    pub ignore_patterns: Vec<String>,
     pub extra_patterns: Vec<String>,
 }
 
@@ -179,6 +183,7 @@ impl Default for SecretsConfig {
     fn default() -> Self {
         Self {
             ignore_files: Vec::new(),
+            ignore_patterns: Vec::new(),
             extra_patterns: Vec::new(),
         }
     }
@@ -221,12 +226,14 @@ struct RawBranches {
 #[derive(Deserialize)]
 struct RawSecrets {
     ignore: Option<RawSecretsIgnore>,
+    #[serde(rename = "extra-patterns")]
     extra_patterns: Option<Vec<String>>,
 }
 
 #[derive(Deserialize)]
 struct RawSecretsIgnore {
     files: Option<Vec<String>>,
+    patterns: Option<Vec<String>>,
 }
 
 // ---------------------------------------------------------------------------

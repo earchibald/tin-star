@@ -9,8 +9,10 @@ if [ -z "$COMMAND" ] || [ "$EXIT_CODE" != "0" ]; then
     exit 0
 fi
 
+# Match git commands including chained: "cd /path && git ..."
 case "$COMMAND" in
-    git\ *|*/git\ *) ;;
+    git\ *|*/git\ *|*"&& git "*|*"; git "*|*"|| git "*|*"&&git "*|*";git "*)
+        ;;
     *) exit 0 ;;
 esac
 

@@ -7,8 +7,11 @@ if [ -z "$COMMAND" ]; then
     exit 0
 fi
 
+# Fast path: skip non-git commands. Claude Code often wraps commands as
+# "cd /path && git ...", so we must also match git after chain operators.
 case "$COMMAND" in
-    git\ *|*/git\ *) ;;
+    git\ *|*/git\ *|*"&& git "*|*"; git "*|*"|| git "*|*"&&git "*|*";git "*)
+        ;;
     *) exit 0 ;;
 esac
 

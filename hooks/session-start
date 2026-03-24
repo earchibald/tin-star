@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PLUGIN_ROOT="${TINSTAR_ROOT}"
+EXPECTED_VERSION=$(grep '"version"' "$PLUGIN_ROOT/.claude-plugin/plugin.json" | sed 's/.*"version"[^"]*"\([^"]*\)".*/\1/')
+
+TINSTAR_BIN="${HOME}/.tinstar/bin/tinstar"
+mkdir -p "${HOME}/.tinstar/bin"
+
+if [ -x "$TINSTAR_BIN" ]; then
+    CURRENT_VERSION=$("$TINSTAR_BIN" --version 2>/dev/null | awk '{print $2}' || echo "0.0.0")
+    if [ "$CURRENT_VERSION" = "$EXPECTED_VERSION" ]; then
+        "$TINSTAR_BIN" status --json 2>/dev/null || true
+        exit 0
+    fi
+fi
+
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+case "${OS}-${ARCH}" in
+    darwin-arm64)  TARGET="aarch64-apple-darwin" ;;
+    darwin-x86_64) TARGET="x86_64-apple-darwin" ;;
+    linux-x86_64)  TARGET="x86_64-unknown-linux-gnu" ;;
+    *) TARGET="" ;;
+esac
+
+if [ -n "$TARGET" ]; then
+    ASSET="tinstar-${TARGET}.tar.gz"
+    BASE_URL="https://github.com/earchibald/tin-star/releases/download/v${EXPECTED_VERSION}"
+    TMPDIR=$(mktemp -d)
+    trap 'rm -rf "$TMPDIR"' EXIT
+    if curl -fsSL "${BASE_URL}/${ASSET}" -o "$TMPDIR/$ASSET" 2>/dev/null && \
+       curl -fsSL "${BASE_URL}/tinstar-checksums.txt" -o "$TMPDIR/checksums.txt" 2>/dev/null; then
+        EXPECTED_SHA=$(grep "$ASSET" "$TMPDIR/checksums.txt" | awk '{print $1}')
+        ACTUAL_SHA=$(shasum -a 256 "$TMPDIR/$ASSET" | awk '{print $1}')
+        if [ -n "$EXPECTED_SHA" ] && [ "$EXPECTED_SHA" = "$ACTUAL_SHA" ]; then
+            tar -xzf "$TMPDIR/$ASSET" -C "${HOME}/.tinstar/bin/"
+            chmod +x "$TINSTAR_BIN"
+        fi
+    fi
+fi
+
+if [ ! -x "$TINSTAR_BIN" ] && command -v cargo >/dev/null 2>&1; then
+    cargo install --path "$PLUGIN_ROOT/cli" --root "${HOME}/.tinstar" 2>/dev/null || true
+fi
+
+if [ -x "$TINSTAR_BIN" ]; then
+    "$TINSTAR_BIN" status --json 2>/dev/null || true
+else
+    echo '{"warning": "tinstar binary not available — git enforcement inactive"}' >&2
+fi
+
+exit 0

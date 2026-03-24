@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
+if [ -z "$COMMAND" ]; then
+    exit 0
+fi
+
+case "$COMMAND" in
+    git\ *|*/git\ *) ;;
+    *) exit 0 ;;
+esac
+
+exec "$TINSTAR" check --command "$COMMAND" --json

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
+EXIT_CODE=$(echo "$INPUT" | jq -r '.tool_output.exit_code // empty' 2>/dev/null)
+
+if [ -z "$COMMAND" ] || [ "$EXIT_CODE" != "0" ]; then
+    exit 0
+fi
+
+case "$COMMAND" in
+    git\ *|*/git\ *) ;;
+    *) exit 0 ;;
+esac
+
+CHECK_EXIT=0
+RESULT=$("$TINSTAR" check --command "$COMMAND" --json 2>/dev/null) || CHECK_EXIT=$?
+
+if [ "$CHECK_EXIT" = "2" ]; then
+    RULE=$(echo "$RESULT" | jq -r '.rule // "unknown"' 2>/dev/null || echo "unknown")
+    BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+    IS_DIRTY="false"
+    if [ -n "$(git status --porcelain 2>/dev/null | head -1)" ]; then
+        IS_DIRTY="true"
+    fi
+    "$TINSTAR" issue create \
+        --rule "$RULE" \
+        --command "$COMMAND" \
+        --hook "PostToolUse" \
+        --project "$TINSTAR_PROJECT" \
+        --branch "$BRANCH" \
+        --dirty "$IS_DIRTY" 2>/dev/null || true
+fi
+
+exit 0

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tin-Star — Enforcement Engine</title>
+<style>
+  @page { size: letter; margin: 0.75in; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 7in;
+    padding: 0;
+    margin: 0 auto;
+    font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: white;
+    color: #111;
+  }
+  @media screen {
+    body { padding: 0.5in; max-width: 8.5in; }
+  }
+  svg { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 672 924" xmlns="http://www.w3.org/2000/svg"
+     font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#334"/>
+  </marker>
+  <marker id="arr-g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#1a6e2e"/>
+  </marker>
+  <marker id="arr-r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#8b1a1a"/>
+  </marker>
+</defs>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- TITLE BLOCK                                                            -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<text x="336" y="22" text-anchor="middle" font-size="17" font-weight="700"
+      letter-spacing="2" fill="#0d1f3c">TIN-STAR ENFORCEMENT ENGINE</text>
+<text x="336" y="36" text-anchor="middle" font-size="9" fill="#555"
+      letter-spacing="0.5">Core Workflow · Claude Code Plugin · v0.1.4</text>
+<line x1="0" y1="44" x2="672" y2="44" stroke="#0d1f3c" stroke-width="1.5"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- HOOK OVERVIEW STRIP                                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<text x="6" y="57" font-size="7" font-weight="700" fill="#555"
+      letter-spacing="1.5">LIFECYCLE HOOKS</text>
+
+<!-- SessionStart -->
+<rect x="0" y="61" width="150" height="44" rx="3"
+      fill="#EEF2FA" stroke="#3860B0" stroke-width="1"/>
+<text x="75" y="76" text-anchor="middle" font-size="8" font-weight="700" fill="#3860B0">SESSION START</text>
+<text x="75" y="88" text-anchor="middle" font-size="7.5" fill="#334">Bootstrap binary on</text>
+<text x="75" y="98" text-anchor="middle" font-size="7.5" fill="#334">each new session</text>
+
+<!-- PreToolUse -->
+<rect x="156" y="61" width="150" height="44" rx="3"
+      fill="#0d1f3c" stroke="#0d1f3c" stroke-width="1"/>
+<text x="231" y="76" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">PRE-TOOL-USE</text>
+<text x="231" y="88" text-anchor="middle" font-size="7.5" fill="#aac">Main enforcement path</text>
+<text x="231" y="98" text-anchor="middle" font-size="7.5" fill="#aac">blocks before execution</text>
+
+<!-- PostToolUse -->
+<rect x="312" y="61" width="150" height="44" rx="3"
+      fill="#EEF2FA" stroke="#3860B0" stroke-width="1"/>
+<text x="387" y="76" text-anchor="middle" font-size="8" font-weight="700" fill="#3860B0">POST-TOOL-USE</text>
+<text x="387" y="88" text-anchor="middle" font-size="7.5" fill="#334">Async leak tracking</text>
+<text x="387" y="98" text-anchor="middle" font-size="7.5" fill="#334">always exit 0</text>
+
+<!-- Stop -->
+<rect x="468" y="61" width="150" height="44" rx="3"
+      fill="#EEF2FA" stroke="#3860B0" stroke-width="1"/>
+<text x="543" y="76" text-anchor="middle" font-size="8" font-weight="700" fill="#3860B0">STOP</text>
+<text x="543" y="88" text-anchor="middle" font-size="7.5" fill="#334">State report after each</text>
+<text x="543" y="98" text-anchor="middle" font-size="7.5" fill="#334">Claude response</text>
+
+<!-- Arrow from PreToolUse down -->
+<line x1="231" y1="105" x2="231" y2="117" stroke="#0d1f3c" stroke-width="1.5"
+      marker-end="url(#arr)"/>
+
+<line x1="0" y1="108" x2="672" y2="108" stroke="#ddd" stroke-width="0.75"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- MAIN FLOW — PRE-TOOL-USE PATH (left column, centered at x=215)        -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+
+<text x="6" y="124" font-size="7" font-weight="700" fill="#0d1f3c"
+      letter-spacing="1.5">① PRE-TOOL-USE — MAIN ENFORCEMENT PATH</text>
+
+<!-- [1] Entry: Claude issues command -->
+<!-- parallelogram via polygon -->
+<polygon points="75,128 345,128 335,148 85,148"
+         fill="#E8EFF8" stroke="#3860B0" stroke-width="1"/>
+<text x="210" y="142" text-anchor="middle" font-size="8.5" fill="#0d1f3c">
+  Claude Code issues a Bash command
+</text>
+
+<!-- Arrow down -->
+<line x1="210" y1="148" x2="210" y2="160" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [2] Hook receives JSON -->
+<rect x="80" y="160" width="260" height="30" rx="3"
+      fill="#E8EFF8" stroke="#3860B0" stroke-width="1"/>
+<text x="210" y="174" text-anchor="middle" font-size="8.5" fill="#0d1f3c">pre-tool-use hook receives</text>
+<text x="210" y="185" text-anchor="middle" font-size="8" fill="#557">JSON via stdin (tool_name, tool_input.command)</text>
+
+<!-- Arrow down -->
+<line x1="210" y1="190" x2="210" y2="202" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [3] Decision: Git command? (diamond) -->
+<!-- Diamond centered at (210, 220), half-w=75, half-h=22 -->
+<polygon points="210,202 285,222 210,242 135,222"
+         fill="#FFFBE8" stroke="#C48000" stroke-width="1.2"/>
+<text x="210" y="219" text-anchor="middle" font-size="8.5" font-weight="700" fill="#7a4e00">git</text>
+<text x="210" y="230" text-anchor="middle" font-size="8.5" font-weight="700" fill="#7a4e00">command?</text>
+
+<!-- "No" branch → right → exit 0 fast path -->
+<line x1="285" y1="222" x2="345" y2="222" stroke="#1a6e2e" stroke-width="1"
+      marker-end="url(#arr-g)"/>
+<rect x="346" y="210" width="110" height="24" rx="12"
+      fill="#edfaed" stroke="#1a6e2e" stroke-width="1.2"/>
+<text x="401" y="221" text-anchor="middle" font-size="8" fill="#1a6e2e" font-weight="700">exit 0 — allow</text>
+<text x="401" y="229" text-anchor="middle" font-size="7" fill="#1a6e2e">&lt; 5 ms · no binary</text>
+<text x="313" y="218" text-anchor="middle" font-size="7.5" font-style="italic" fill="#777">No</text>
+
+<!-- "Yes" annotation -->
+<text x="218" y="250" font-size="7.5" font-style="italic" fill="#777">Yes</text>
+
+<!-- Fast-path annotation -->
+<text x="460" y="214" font-size="7" fill="#888">bash case statement:</text>
+<text x="460" y="224" font-size="7" fill="#888">git * | */git * | *&amp;&amp; git *</text>
+<text x="460" y="234" font-size="7" fill="#888">→ skip binary entirely</text>
+
+<!-- Arrow Yes down -->
+<line x1="210" y1="242" x2="210" y2="254" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [4] tinstar binary invoked -->
+<rect x="80" y="254" width="260" height="30" rx="3"
+      fill="#E0E8F8" stroke="#3860B0" stroke-width="1.4"/>
+<text x="210" y="268" text-anchor="middle" font-size="9" font-weight="600" fill="#0d1f3c">tinstar check --command "…"</text>
+<text x="210" y="279" text-anchor="middle" font-size="7.5" fill="#445">TINSTAR_PROJECT sets working directory context</text>
+
+<!-- Annotation: binary location -->
+<text x="460" y="262" font-size="7" fill="#888">binary: ~/.tinstar/bin/tinstar</text>
+<text x="460" y="272" font-size="7" fill="#888">graceful degrade if absent</text>
+<text x="460" y="282" font-size="7" fill="#888">→ exit 0, never blocks Claude</text>
+
+<!-- Arrow down -->
+<line x1="210" y1="284" x2="210" y2="296" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [5] split_commands -->
+<rect x="80" y="296" width="260" height="28" rx="3"
+      fill="#E8EFF8" stroke="#3860B0" stroke-width="1"/>
+<text x="210" y="310" text-anchor="middle" font-size="8.5" fill="#0d1f3c">split_commands( ) — parse &amp;&amp;  ||  ;</text>
+<text x="210" y="321" text-anchor="middle" font-size="7.5" fill="#557">each segment checked independently</text>
+
+<!-- Annotation -->
+<text x="460" y="305" font-size="7" fill="#888">catches: cd /path &amp;&amp; git push -f</text>
+<text x="460" y="315" font-size="7" fill="#888">Claude often wraps cmds this way</text>
+
+<!-- Arrow down -->
+<line x1="210" y1="324" x2="210" y2="336" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [6] Command Rules group box -->
+<rect x="55" y="336" width="310" height="118" rx="4"
+      fill="#F5F8FF" stroke="#3860B0" stroke-width="1.2" stroke-dasharray="4,2"/>
+<text x="70" y="350" font-size="7.5" font-weight="700" fill="#3860B0"
+      letter-spacing="1">COMMAND RULES — checked for every git command</text>
+<line x1="55" y1="354" x2="365" y2="354" stroke="#3860B0" stroke-width="0.5" stroke-dasharray="4,2"/>
+
+<!-- Rule rows -->
+<!-- force-push -->
+<rect x="63" y="358" width="10" height="10" rx="2" fill="#CC3300"/>
+<text x="79" y="367" font-size="8.5" fill="#0d1f3c" font-weight="600">force-push</text>
+<text x="165" y="367" font-size="8" fill="#555">  git push --force / -f  →  block</text>
+<text x="63" y="378" font-size="7.5" fill="#888">     --force-with-lease is allowed (safe alternative)</text>
+
+<!-- no-verify -->
+<rect x="63" y="381" width="10" height="10" rx="2" fill="#CC3300"/>
+<text x="79" y="390" font-size="8.5" fill="#0d1f3c" font-weight="600">no-verify</text>
+<text x="165" y="390" font-size="8" fill="#555">  git commit --no-verify  →  block</text>
+<text x="63" y="401" font-size="7.5" fill="#888">     bypasses pre-commit hooks; always blocked</text>
+
+<!-- destructive-ops -->
+<rect x="63" y="404" width="10" height="10" rx="2" fill="#CC3300"/>
+<text x="79" y="413" font-size="8.5" fill="#0d1f3c" font-weight="600">destructive-ops</text>
+<text x="165" y="413" font-size="8" fill="#555">  reset --hard, checkout ., clean -f, restore .  →  block</text>
+
+<!-- commit-message -->
+<rect x="63" y="425" width="10" height="10" rx="2" fill="#E88000"/>
+<text x="79" y="434" font-size="8.5" fill="#0d1f3c" font-weight="600">commit-message</text>
+<text x="165" y="434" font-size="8" fill="#555">  empty or &lt;10 chars  →  block</text>
+<text x="63" y="445" font-size="7.5" fill="#888">     extracted from -m flag or COMMIT_EDITMSG</text>
+
+<!-- Arrow down -->
+<line x1="210" y1="454" x2="210" y2="466" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [7] Decision: git commit? -->
+<polygon points="210,466 290,486 210,506 130,486"
+         fill="#FFFBE8" stroke="#C48000" stroke-width="1.2"/>
+<text x="210" y="482" text-anchor="middle" font-size="8" font-weight="700" fill="#7a4e00">git commit</text>
+<text x="210" y="494" text-anchor="middle" font-size="8" font-weight="700" fill="#7a4e00">detected?</text>
+
+<!-- No → emit result (right) -->
+<line x1="290" y1="486" x2="345" y2="486" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+<rect x="346" y="476" width="102" height="20" rx="3"
+      fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+<text x="397" y="489" text-anchor="middle" font-size="7.5" fill="#444">emit result ↓</text>
+<text x="313" y="482" text-anchor="middle" font-size="7.5" font-style="italic" fill="#777">No</text>
+
+<!-- Yes annotation -->
+<text x="218" y="514" font-size="7.5" font-style="italic" fill="#777">Yes</text>
+
+<!-- Arrow Yes down -->
+<line x1="210" y1="506" x2="210" y2="518" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [8] Extended Rules group -->
+<rect x="55" y="518" width="310" height="100" rx="4"
+      fill="#FFF8F5" stroke="#C06000" stroke-width="1.2" stroke-dasharray="4,2"/>
+<text x="70" y="532" font-size="7.5" font-weight="700" fill="#C06000"
+      letter-spacing="1">EXTENDED RULES — git commit only, require repo context</text>
+<line x1="55" y1="536" x2="365" y2="536" stroke="#C06000" stroke-width="0.5" stroke-dasharray="4,2"/>
+
+<!-- secrets -->
+<rect x="63" y="540" width="10" height="10" rx="2" fill="#CC3300"/>
+<text x="79" y="549" font-size="8.5" fill="#0d1f3c" font-weight="600">secrets</text>
+<text x="135" y="549" font-size="8" fill="#555">  scan staged diff for 14 patterns  →  block</text>
+<text x="63" y="560" font-size="7.5" fill="#888">     AWS, GitHub PAT, Anthropic, OpenAI, Google, Slack, Stripe, JWT, DB URLs, npm…</text>
+<text x="63" y="570" font-size="7.5" fill="#888">     # tinstar:ignore suppresses a line</text>
+
+<!-- commit-to-main -->
+<rect x="63" y="574" width="10" height="10" rx="2" fill="#E88000"/>
+<text x="79" y="583" font-size="8.5" fill="#0d1f3c" font-weight="600">commit-to-main</text>
+<text x="165" y="583" font-size="8" fill="#555">  on protected branch  →  warn/block</text>
+
+<!-- branch-divergence -->
+<rect x="63" y="596" width="10" height="10" rx="2" fill="#E88000"/>
+<text x="79" y="605" font-size="8.5" fill="#0d1f3c" font-weight="600">branch-divergence</text>
+<text x="165" y="605" font-size="8" fill="#555">  N commits behind upstream  →  warn</text>
+
+<!-- Arrow down -->
+<line x1="210" y1="618" x2="210" y2="630" stroke="#334" stroke-width="1"
+      marker-end="url(#arr)"/>
+
+<!-- [9] Decision: Violation found? -->
+<polygon points="210,630 295,652 210,674 125,652"
+         fill="#FFFBE8" stroke="#C48000" stroke-width="1.2"/>
+<text x="210" y="648" text-anchor="middle" font-size="8" font-weight="700" fill="#7a4e00">Violation</text>
+<text x="210" y="660" text-anchor="middle" font-size="8" font-weight="700" fill="#7a4e00">found?</text>
+
+<!-- BLOCK branch (left) -->
+<line x1="125" y1="652" x2="68" y2="652" stroke="#8b1a1a" stroke-width="1.2"
+      marker-end="url(#arr-r)"/>
+<line x1="68" y1="652" x2="68" y2="680" stroke="#8b1a1a" stroke-width="1.2"
+      marker-end="url(#arr-r)"/>
+<text x="93" y="648" text-anchor="middle" font-size="7.5" font-style="italic" fill="#8b1a1a">Block</text>
+
+<rect x="6" y="680" width="124" height="40" rx="4"
+      fill="#FEF0EE" stroke="#8b1a1a" stroke-width="1.5"/>
+<text x="68" y="697" text-anchor="middle" font-size="9" font-weight="700" fill="#8b1a1a">exit 2</text>
+<text x="68" y="709" text-anchor="middle" font-size="7.5" fill="#8b1a1a">Claude Code shows</text>
+<text x="68" y="718" text-anchor="middle" font-size="7.5" fill="#8b1a1a">error — cmd blocked</text>
+
+<!-- ALLOW branch (right) -->
+<line x1="295" y1="652" x2="355" y2="652" stroke="#1a6e2e" stroke-width="1.2"
+      marker-end="url(#arr-g)"/>
+<line x1="355" y1="652" x2="355" y2="680" stroke="#1a6e2e" stroke-width="1.2"
+      marker-end="url(#arr-g)"/>
+<text x="323" y="648" text-anchor="middle" font-size="7.5" font-style="italic" fill="#1a6e2e">Allow</text>
+
+<rect x="293" y="680" width="124" height="40" rx="4"
+      fill="#EDF8EE" stroke="#1a6e2e" stroke-width="1.5"/>
+<text x="355" y="697" text-anchor="middle" font-size="9" font-weight="700" fill="#1a6e2e">exit 0</text>
+<text x="355" y="709" text-anchor="middle" font-size="7.5" fill="#1a6e2e">Command executes</text>
+<text x="355" y="718" text-anchor="middle" font-size="7.5" fill="#1a6e2e">normally</text>
+
+<!-- Warn annotation (center) -->
+<rect x="150" y="683" width="108" height="34" rx="3"
+      fill="#FFFBE8" stroke="#C48000" stroke-width="1"/>
+<text x="204" y="696" text-anchor="middle" font-size="8" font-weight="700" fill="#7a4e00">exit 0 + warn</text>
+<text x="204" y="706" text-anchor="middle" font-size="7.5" fill="#7a4e00">rule severity=warn</text>
+<text x="204" y="715" text-anchor="middle" font-size="7.5" fill="#7a4e00">logged, not blocked</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- RIGHT COLUMN — SECONDARY HOOKS                                        -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+
+<line x1="455" y1="112" x2="455" y2="740" stroke="#ddd" stroke-width="0.75"/>
+
+<!-- ── SESSION START ── -->
+<text x="463" y="124" font-size="7.5" font-weight="700" fill="#3860B0" letter-spacing="1">
+  ② SESSION START
+</text>
+<rect x="460" y="128" width="208" height="80" rx="3"
+      fill="#EEF2FA" stroke="#3860B0" stroke-width="1"/>
+<text x="468" y="141" font-size="7.5" fill="#334">Fires on each new Claude session.</text>
+<text x="468" y="153" font-size="7.5" fill="#334">1. Check ~/.tinstar/bin/tinstar exists</text>
+<text x="468" y="165" font-size="7.5" fill="#334">2. If absent → download from GitHub Releases</text>
+<text x="468" y="177" font-size="7.5" fill="#334">3. Verify SHA256 against checksums.txt</text>
+<text x="468" y="189" font-size="7.5" fill="#334">4. Fallback: cargo build (if Rust installed)</text>
+<text x="468" y="200" font-size="7.5" fill="#888" font-style="italic">Always exits 0 — never blocks session start.</text>
+
+<!-- ── POST-TOOL-USE ── -->
+<text x="463" y="224" font-size="7.5" font-weight="700" fill="#3860B0" letter-spacing="1">
+  ③ POST-TOOL-USE (ASYNC LEAK TRACKING)
+</text>
+<rect x="460" y="228" width="208" height="118" rx="3"
+      fill="#EEF2FA" stroke="#3860B0" stroke-width="1"/>
+<text x="468" y="241" font-size="7.5" fill="#334">Fires after every Bash command completes.</text>
+
+<text x="468" y="255" font-size="7" fill="#888">Only proceeds if:</text>
+<text x="476" y="265" font-size="7.5" fill="#334">• command exit code = 0</text>
+<text x="476" y="275" font-size="7.5" fill="#334">• command is a git command</text>
+
+<text x="468" y="289" font-size="7.5" fill="#334">tinstar check --command "…"</text>
+<text x="468" y="300" font-size="7" fill="#888">If violation found post-execution:</text>
+<text x="476" y="310" font-size="7.5" fill="#334">tinstar issue create</text>
+<text x="476" y="321" font-size="7.5" fill="#334">→ UUID file in ~/.tinstar/issues/</text>
+<text x="476" y="332" font-size="7.5" fill="#334">→ records rule, cmd, branch, dirty flag</text>
+<text x="468" y="342" font-size="7.5" fill="#888" font-style="italic">Always exits 0 — never interrupts workflow.</text>
+
+<!-- ── STOP HOOK ── -->
+<text x="463" y="364" font-size="7.5" font-weight="700" fill="#3860B0" letter-spacing="1">
+  ④ STOP HOOK (STATE REPORT)
+</text>
+<rect x="460" y="368" width="208" height="100" rx="3"
+      fill="#EEF2FA" stroke="#3860B0" stroke-width="1"/>
+<text x="468" y="381" font-size="7.5" fill="#334">Fires after each Claude response ends.</text>
+<text x="468" y="393" font-size="7.5" fill="#334">tinstar check-state --json</text>
+<text x="468" y="405" font-size="7" fill="#888">Reports:</text>
+<text x="476" y="415" font-size="7.5" fill="#334">• pending issues from ~/.tinstar/issues/</text>
+<text x="476" y="425" font-size="7.5" fill="#334">• staged diff secret scan</text>
+<text x="476" y="435" font-size="7.5" fill="#334">• branch divergence status</text>
+<text x="468" y="448" font-size="7" fill="#888">exit 2 → Claude must address before stopping.</text>
+<text x="468" y="458" font-size="7" fill="#888">exit 0 → all clear.</text>
+
+<!-- ── CONFIGURATION ── -->
+<text x="463" y="484" font-size="7.5" font-weight="700" fill="#0d1f3c" letter-spacing="1">
+  ⑤ CONFIGURATION (.tinstar.toml)
+</text>
+<rect x="460" y="488" width="208" height="148" rx="3"
+      fill="#F7F8FA" stroke="#9AAAC8" stroke-width="1"/>
+<text x="468" y="501" font-size="7.5" fill="#334">Zero-config: all 8 rules active by default.</text>
+<text x="468" y="513" font-size="7.5" fill="#334">Per-rule severity: block · warn · off</text>
+
+<!-- Rule table -->
+<text x="468" y="527" font-size="7" fill="#888" font-weight="700">RULE</text>
+<text x="570" y="527" font-size="7" fill="#888" font-weight="700">DEFAULT</text>
+
+<line x1="468" y1="530" x2="660" y2="530" stroke="#ccc" stroke-width="0.5"/>
+
+<!-- rows -->
+<text x="468" y="540" font-size="7.5" fill="#334">force-push</text>
+<rect x="563" y="532" width="30" height="11" rx="2" fill="#CC3300"/>
+<text x="578" y="541" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">block</text>
+
+<text x="468" y="553" font-size="7.5" fill="#334">no-verify</text>
+<rect x="563" y="545" width="30" height="11" rx="2" fill="#CC3300"/>
+<text x="578" y="554" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">block</text>
+
+<text x="468" y="566" font-size="7.5" fill="#334">destructive-ops</text>
+<rect x="563" y="558" width="30" height="11" rx="2" fill="#CC3300"/>
+<text x="578" y="567" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">block</text>
+
+<text x="468" y="579" font-size="7.5" fill="#334">commit-message</text>
+<rect x="563" y="571" width="30" height="11" rx="2" fill="#CC3300"/>
+<text x="578" y="580" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">block</text>
+
+<text x="468" y="592" font-size="7.5" fill="#334">secrets</text>
+<rect x="563" y="584" width="30" height="11" rx="2" fill="#CC3300"/>
+<text x="578" y="593" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">block</text>
+
+<text x="468" y="605" font-size="7.5" fill="#334">commit-to-main</text>
+<rect x="563" y="597" width="30" height="11" rx="2" fill="#E88000"/>
+<text x="578" y="606" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">warn</text>
+
+<text x="468" y="618" font-size="7.5" fill="#334">branch-divergence</text>
+<rect x="563" y="610" width="30" height="11" rx="2" fill="#E88000"/>
+<text x="578" y="619" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">warn</text>
+
+<text x="468" y="631" font-size="7.5" fill="#334">stale-branches</text>
+<rect x="563" y="623" width="30" height="11" rx="2" fill="#E88000"/>
+<text x="578" y="632" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="700">warn</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- LEGEND + FOOTER                                                        -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<line x1="0" y1="740" x2="672" y2="740" stroke="#ddd" stroke-width="0.75"/>
+
+<!-- Legend -->
+<text x="6" y="754" font-size="7" font-weight="700" fill="#555" letter-spacing="1">LEGEND</text>
+
+<rect x="6" y="758" width="10" height="10" rx="2" fill="#CC3300"/>
+<text x="20" y="767" font-size="7.5" fill="#334">block (exit 2)</text>
+
+<rect x="90" y="758" width="10" height="10" rx="2" fill="#E88000"/>
+<text x="104" y="767" font-size="7.5" fill="#334">warn (exit 0)</text>
+
+<rect x="174" y="758" width="10" height="10" rx="2" fill="#1a6e2e"/>
+<text x="188" y="767" font-size="7.5" fill="#334">allow (exit 0)</text>
+
+<polygon points="270,758 285,765 270,772 255,765" fill="#FFFBE8" stroke="#C48000" stroke-width="1"/>
+<text x="292" y="768" font-size="7.5" fill="#334">decision</text>
+
+<polygon points="370,760 400,760 390,772 360,772" fill="#E8EFF8" stroke="#3860B0" stroke-width="1"/>
+<text x="408" y="768" font-size="7.5" fill="#334">input/output</text>
+
+<rect x="480" y="758" width="30" height="12" rx="3" fill="none" stroke="#3860B0" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="516" y="768" font-size="7.5" fill="#334">rule group</text>
+
+<!-- Performance note -->
+<rect x="0" y="778" width="672" height="28" rx="3" fill="#F0F4F8"/>
+<text x="336" y="790" text-anchor="middle" font-size="7.5" fill="#445">
+  Performance: non-git commands exit in &lt;5 ms (shell only). Git commands invoke the binary: typically 30–120 ms.
+</text>
+<text x="336" y="800" text-anchor="middle" font-size="7.5" fill="#445">
+  The binary is compiled Rust — no runtime, no interpreter. Graceful degradation: if binary absent, all hooks exit 0.
+</text>
+
+<!-- Distribution note -->
+<text x="336" y="818" text-anchor="middle" font-size="7" fill="#888">
+  Distributed via earchibald-plugins marketplace · github.com/earchibald/tin-star · MIT License
+</text>
+
+<!-- Superpowers coexistence note -->
+<rect x="0" y="826" width="672" height="20" rx="3" fill="#F5F8FF" stroke="#ccd" stroke-width="0.75"/>
+<text x="336" y="840" text-anchor="middle" font-size="7.5" fill="#3860B0">
+  Coexists with superpowers plugin: 4 tin-star hooks + 1 superpowers hook = 5 total. Hooks run in registration order. No conflicts.
+</text>
+
+<!-- Version stamp -->
+<text x="672" y="860" text-anchor="end" font-size="7" fill="#bbb">
+  tin-star v0.1.4 · 2026-03-24
+</text>
+
+</svg>
+</body>
+</html>

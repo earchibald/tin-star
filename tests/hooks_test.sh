@@ -48,8 +48,11 @@ fi
 
 echo ""
 echo "=== graceful degradation ==="
+# Temporarily hide the real binary so run-hook.cmd can't find it
+mv "$HOME/.tinstar/bin/tinstar" "$HOME/.tinstar/bin/tinstar.bak" 2>/dev/null || true
 DEGRADE_EXIT=0
-echo '{"tool_name":"Bash","tool_input":{"command":"git push --force"}}' | TINSTAR="/nonexistent/tinstar" TINSTAR_PROJECT="$SCRIPT_DIR" CLAUDE_PLUGIN_ROOT="$SCRIPT_DIR" "$HOOKS/run-hook.cmd" pre-tool-use >/dev/null 2>&1 || DEGRADE_EXIT=$?
+echo '{"tool_name":"Bash","tool_input":{"command":"git push --force"}}' | TINSTAR_PROJECT="$SCRIPT_DIR" CLAUDE_PLUGIN_ROOT="$SCRIPT_DIR" "$HOOKS/run-hook.cmd" pre-tool-use >/dev/null 2>&1 || DEGRADE_EXIT=$?
+mv "$HOME/.tinstar/bin/tinstar.bak" "$HOME/.tinstar/bin/tinstar" 2>/dev/null || true
 if [ "$DEGRADE_EXIT" = "0" ]; then
     echo "  PASS: graceful degradation (no binary = exit 0)"
     PASS=$((PASS + 1))

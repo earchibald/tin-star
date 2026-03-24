@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4
+
+- Add: 10 new secret detection patterns — GitHub PAT, GitLab PAT, Anthropic, OpenAI, Google API, Slack, Stripe, JWT, database URLs, npm tokens
+- Add: `tinstar:ignore` inline annotation to suppress false positives on a line (same convention as gitleaks, trufflehog)
+- Add: 13 pattern-specific tests in e2e suite (35 E2E + 10 hook = 45 total)
+
 ## 0.1.3
 
 - Fix: graceful degradation test properly hides binary

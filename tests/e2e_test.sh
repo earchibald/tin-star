@@ -92,12 +92,46 @@ TMPDIR=$(mktemp -d)
 cd "$TMPDIR"
 git init -q && git config user.email "t@t" && git config user.name "T"
 git commit --allow-empty -m init -q
-# Create AWS key pattern using shell expansion to avoid static detection
-AWS_KEY="AKIA"$(python3 -c "print('I' * 16)")
-echo "AWS_ACCESS_KEY_ID=$AWS_KEY" > secrets.txt
-git add secrets.txt
-OUT=$("$TINSTAR" scan-diff --json 2>/dev/null)
-echo "$OUT" | jq -e '.findings | length > 0' >/dev/null 2>&1 && ok "AWS key detected" || fail "secret detection missed AWS key: $OUT"
+
+scan_one() {
+    local label="$1" content="$2"
+    echo "$content" > _secret.txt
+    git add _secret.txt
+    OUT=$("$TINSTAR" scan-diff --json 2>/dev/null)
+    echo "$OUT" | jq -e '.findings | length > 0' >/dev/null 2>&1 && ok "$label detected" || fail "$label not detected: $OUT"
+    git rm --cached _secret.txt >/dev/null 2>&1; rm -f _secret.txt
+}
+
+# AWS Access Key ID
+scan_one "AWS key" "AWS_ACCESS_KEY_ID=AKIA$(python3 -c "print('A'*16)")"
+# Private key header — split to avoid self-triggering the scanner
+PEM_OPEN="-----BEGIN RSA"
+scan_one "private key" "$PEM_OPEN PRIVATE KEY-----"
+# Generic api_key with quotes
+scan_one "api_key quoted" "api_key = 'super-secret-value-here'" # tinstar:ignore (test fixture)
+# Generic password with quotes
+scan_one "password quoted" 'password = "hunter2-secret-value"' # tinstar:ignore (test fixture)
+# GitHub classic PAT
+scan_one "GitHub PAT" "GITHUB_TOKEN=ghp_$(python3 -c "print('A'*36)")"
+# GitLab PAT
+scan_one "GitLab PAT" "GITLAB_TOKEN=glpat-$(python3 -c "print('A'*20)")"
+# Anthropic API key
+scan_one "Anthropic key" "ANTHROPIC_API_KEY=sk-ant-api03-$(python3 -c "print('A'*20)")"
+# OpenAI project key
+scan_one "OpenAI project key" "OPENAI_API_KEY=sk-proj-$(python3 -c "print('A'*48)")"
+# Google API key
+scan_one "Google API key" "GOOGLE_API_KEY=AIza$(python3 -c "print('A'*35)")"
+# Slack token
+scan_one "Slack token" "SLACK_TOKEN=xoxb-$(python3 -c "print('1'*10)")-$(python3 -c "print('A'*10)")"
+# Stripe live secret key
+scan_one "Stripe live key" "STRIPE_KEY=sk_live_$(python3 -c "print('A'*24)")"
+# JWT token
+scan_one "JWT token" "TOKEN=eyJ$(python3 -c "print('A'*20)").eyJ$(python3 -c "print('B'*20)")"
+# Database connection URL with credentials
+scan_one "DB URL with creds" "DATABASE_URL=postgres://admin:$(python3 -c "print('x'*16)")@db.example.com/prod"
+# npm token
+scan_one "npm token" "NPM_TOKEN=npm_$(python3 -c "print('A'*36)")"
+
 cd - >/dev/null
 rm -rf "$TMPDIR"
 
